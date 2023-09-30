@@ -45,20 +45,13 @@ const Home = () => {
 
 	//update database
 	useEffect(() => {
-		// let max = 0;
-		// addToList.map(obj => {
-		// 	if (obj.id > max) {
-		// 		max = obj.id
-		// 	}
-		// 	setNextKey(max + 1);
-			fetch(url, {
-				method: "PUT",
-				body: JSON.stringify(addToList),
-				headers: {
-				  "Content-Type": "application/json"
-				}
-		  });
-		// })
+		fetch(url, {
+			method: "PUT",
+			body: JSON.stringify(addToList),
+			headers: {
+				"Content-Type": "application/json"
+			}
+		});
 	}, [addToList]);
 
 	function addItemToList(e) {
@@ -68,18 +61,6 @@ const Home = () => {
 			setNextKey(nextKey + 1);
         }
     };
-
-	// function deleteItemFromList(e) {
-	// 	// let item = document.getElementById(e.target.parentNode.parentNode.id);
-	// 	// console.log(item);
-
-	// 	setAddToList(addToList.filter(item => {
-	// 		if(<i class="fa-solid fa-eraser"></i> !== e.target.parentNode.parentNode) {
-	// 			return item
-	// 		}
-	// 	}))
-	// 	setNextKey(nextKey - 1);
-	// }
 
 	return (
 		<div className="container">
@@ -95,11 +76,11 @@ const Home = () => {
 					onKeyDown={addItemToList}>
 					</input>
 				</li>
-				{addToList.map((todo) => 
+				{addToList.map((todo, index) => 
 					(<li id={todo.id}>
 						<span
 						className="hide"
-						// onClick={deleteItemFromList}
+						onClick={() => setAddToList(addToList.filter((t, currentIndex) => index != currentIndex))}
 						>
 							<i class="fa-solid fa-eraser"></i>
 						</span>
