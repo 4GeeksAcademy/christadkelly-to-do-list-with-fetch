@@ -1,17 +1,85 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 
 
 //create your first component
 const Home = () => {
 	const [items, setItems] = useState('');
 	const [addToList, setAddToList] = useState([]);
+	const [nextKey, setNextKey] = useState(1);
+
+	const url = 'https://playground.4geeks.com/apis/fake/todos/user/cdkelly';
+
+	// connect API
+	const getTodos = async () => {
+		const response = await fetch(url);
+		const todos = await response.json();
+		try {
+			if(!response.ok){
+				throw new Error("there is an error", response.status);
+			}
+			console.log(todos);
+			return todos;
+		}
+		catch(error) {
+			console.log("there is an error", error)
+		}
+	}
+
+	// get existing todos
+	useEffect( async () => {
+		console.log('test');
+		const todoList = await getTodos();
+		const list = todoList.map((todo) => {
+			return {done: false, id: todo.id, label: todo.label}
+		});
+		let max = 0;
+		list.map(obj => {
+			if (obj.id > max) {
+				max = obj.id
+			}
+		});
+		setNextKey(max + 1);
+		console.log(list);
+		setAddToList(list);
+	},[])
+
+	//update database
+	useEffect(() => {
+		// let max = 0;
+		// addToList.map(obj => {
+		// 	if (obj.id > max) {
+		// 		max = obj.id
+		// 	}
+		// 	setNextKey(max + 1);
+			fetch(url, {
+				method: "PUT",
+				body: JSON.stringify(addToList),
+				headers: {
+				  "Content-Type": "application/json"
+				}
+		  });
+		// })
+	}, [addToList]);
 
 	function addItemToList(e) {
         if (e.key === "Enter") {
-            setAddToList(addToList.concat([items]));
+            setAddToList(addToList.concat([{done: false, label: items, id: nextKey}]));
             setItems("");
+			setNextKey(nextKey + 1);
         }
     };
+
+	// function deleteItemFromList(e) {
+	// 	// let item = document.getElementById(e.target.parentNode.parentNode.id);
+	// 	// console.log(item);
+
+	// 	setAddToList(addToList.filter(item => {
+	// 		if(<i class="fa-solid fa-eraser"></i> !== e.target.parentNode.parentNode) {
+	// 			return item
+	// 		}
+	// 	}))
+	// 	setNextKey(nextKey - 1);
+	// }
 
 	return (
 		<div className="container">
@@ -27,18 +95,18 @@ const Home = () => {
 					onKeyDown={addItemToList}>
 					</input>
 				</li>
-				{addToList.map((a, index) => 
-					(<li>
+				{addToList.map((todo) => 
+					(<li id={todo.id}>
 						<span
 						className="hide"
-						// style={show}
-						onClick={() => setAddToList(addToList.filter((t, currentIndex) => index != currentIndex))}>
+						// onClick={deleteItemFromList}
+						>
 							<i class="fa-solid fa-eraser"></i>
 						</span>
 						<input 
 						type="checkbox"
 						className="checkbox"/> 
-						<label>{a}</label>
+						<label>{todo.label}</label>
 					</li>))
 				}
 			</ul>
